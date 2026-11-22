@@ -1,7 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import "dotenv/config";
 import { vacancyExists, saveVacancy } from "./database.js";
-import cron from "node-cron";
 
 const RSS_URL = "https://jobs.dou.ua/vacancies/feeds/?category=Front%20End";
 const KEYWORDS = [
@@ -52,10 +51,6 @@ async function main(): Promise<void> {
         isRunning = false;
     }
 }
-
-cron.schedule("*/15 * * * *", () => {
-    main();
-});
 
 main();
 

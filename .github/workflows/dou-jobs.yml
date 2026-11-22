@@ -1,0 +1,32 @@
+name: DOU Jobs Tracker
+
+on:
+  schedule:
+    - cron: '*/15 7-20 * * *'
+      timezone: 'Europe/Kyiv'
+    - cron: '0 21 * * *'
+      timezone: 'Europe/Kyiv'
+
+  workflow_dispatch:
+
+jobs:
+  check-vacancies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run bot
+        run: npm start
