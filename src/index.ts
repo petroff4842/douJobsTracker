@@ -23,7 +23,12 @@ async function main(): Promise<void> {
     const parser = new XMLParser();
     const result = parser.parse(xml);
 
-    const vacancies = result.rss.channel.item;
+    const items = result.rss.channel.item;
+    if (!items) {
+        return;
+    }
+
+    const vacancies = Array.isArray(items) ? items : [items];
 
     for (const vacancy of vacancies) {
         // const isRelevant = KEYWORDS.some(keyword =>
