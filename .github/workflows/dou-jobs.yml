@@ -3,8 +3,8 @@ name: DOU Jobs Tracker
 
 on:
   schedule:
-    - cron: '*/15 5-18 * * *'
-    - cron: '0 19 * * *'
+    - cron: '*/5 * * * *'
+      timezone: 'Europe/Kyiv'
 
   workflow_dispatch:
 
