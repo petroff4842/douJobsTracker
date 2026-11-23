@@ -44,11 +44,20 @@ async function main(): Promise<void> {
                     try {
                         const message = `${vacancy.title}\n${vacancy.link}`;
                         await sendMessage(message);
-                        saveVacancy(vacancy.title, vacancy.link, publishedAt);
                     } catch (error) {
                         // Не сохраняем в базу: вакансия будет отправлена при следующем запуске
                         console.error(`Failed to send vacancy ${vacancy.link}:`, error);
+                        await sleep(1000);
+                        continue;
                     }
+
+                    try {
+                        saveVacancy(vacancy.title, vacancy.link, publishedAt);
+                    } catch (error) {
+                        // Сообщение уже ушло, поэтому при следующем запуске возможен дубль
+                        console.error(`Sent but failed to save ${vacancy.link}:`, error);
+                    }
+
                     // Пауза между сообщениями, чтобы не упереться в лимиты Telegram
                     await sleep(1000);
                 }
