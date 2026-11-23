@@ -41,9 +41,16 @@ async function main(): Promise<void> {
                 const publishedAt = vacancy.pubDate;
                 const exists = vacancyExists(vacancy.link, publishedAt);
                 if (!exists) {
-                    const message = `${vacancy.title}\n${vacancy.link}`;
-                    await sendMessage(message);
-                    saveVacancy(vacancy.title, vacancy.link, publishedAt);
+                    try {
+                        const message = `${vacancy.title}\n${vacancy.link}`;
+                        await sendMessage(message);
+                        saveVacancy(vacancy.title, vacancy.link, publishedAt);
+                    } catch (error) {
+                        // Не сохраняем в базу: вакансия будет отправлена при следующем запуске
+                        console.error(`Failed to send vacancy ${vacancy.link}:`, error);
+                    }
+                    // Пауза между сообщениями, чтобы не упереться в лимиты Telegram
+                    await sleep(1000);
                 }
             }
         }
@@ -72,5 +79,12 @@ async function sendMessage(text: string): Promise<void> {
     });
 
     const result = await response.json();
+    if (!result.ok) {
+        throw new Error(`Telegram API error: ${JSON.stringify(result)}`);
+    }
     console.log(result);
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
