@@ -1,3 +1,4 @@
+
 name: DOU Jobs Tracker
 
 on:
@@ -8,6 +9,10 @@ on:
       timezone: 'Europe/Kyiv'
 
   workflow_dispatch:
+
+concurrency:
+  group: dou-jobs-tracker
+  cancel-in-progress: false
 
 jobs:
   check-vacancies:
@@ -22,6 +27,14 @@ jobs:
         with:
           node-version: 24
 
+      - name: Restore database
+        uses: actions/cache/restore@v4
+        with:
+          path: jobs.db
+          key: ${{ runner.os }}-jobs-db-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jobs-db-
+
       - name: Install dependencies
         run: npm ci
 
@@ -30,3 +43,13 @@ jobs:
 
       - name: Run bot
         run: npm start
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+
+      - name: Save database
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: jobs.db
+          key: ${{ runner.os }}-jobs-db-${{ github.run_id }}
